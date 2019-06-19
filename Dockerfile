@@ -32,12 +32,20 @@ mynetworks=172.18.0.0/16,127.0.0.0/8 \n\
 local_recipient_maps=hash:/etc/postfix/local_recipient_maps \n\
 # 一个拒收规则 \n\
 #smtpd_reject_unlisted_sender=yes \n\
-# 虚拟邮箱名 \n\
+# 虚拟别名 \n\
 virtual_alias_domains=v.xjplus.xyz,vip.xjplus.xyz \n\
-# 虚拟邮箱名转发到本地unix用户目录 \n\
+# 虚拟别名转发到本地unix用户目录 \n\
 virtual_alias_maps=hash:/etc/postfix/virtual_alias_maps \n\
-# ############ \n\
+# 虚拟邮箱目录, 注意修改目录权限, 否则可能无法保存邮件 \n\
 virtual_mailbox_base=/var/vmail \n\
+# 虚拟邮箱域名 \n\
+virtual_mailbox_domains=box.xjplus.xyz \n\
+# 虚拟邮箱-邮件存储路径 \n\
+virtual_mailbox_maps=hash:/etc/postfix/virtual_mailbox_maps \n\
+# 最小uid, 默认100 \n\
+virtual_minimum_uid=100 \n\
+virtual_uid_maps=static:101 \n\
+virtual_gid_maps=static:101 \n\
 " >> /etc/postfix/main.cf
 
 RUN echo -e "\n\
@@ -49,6 +57,11 @@ RUN echo -e "\n\
 test.abc@v.xjplus.xyz  test \n\
 root.abc123@vip.xjplus.xyz  postmaster \n\
 " > /etc/postfix/virtual_alias_maps && postmap /etc/postfix/virtual_alias_maps
+
+RUN echo -e "\n\
+box_001@box.xjplus.xyz  box.xjplus.xyz/box_001/ \n\
+box_002@box.xjplus.xyz  box/box_002/ \n\
+" > /etc/postfix/virtual_mailbox_maps && postmap /etc/postfix/virtual_mailbox_maps
 
 EXPOSE 25
 
