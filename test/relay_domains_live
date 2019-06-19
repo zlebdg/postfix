@@ -1,0 +1,7 @@
+# 收件人为live.cn的会被退信
+(sleep 1; echo helo a; \
+ sleep 1; echo "mail from:<postfix@xjplus.xyz>"; \
+ sleep 1; echo "rcpt to:<xuqplus@live.cn>"; \
+ sleep 1; echo "data"; \
+ sleep 1; echo "test"; \
+ sleep 1; echo ".") |telnet xjplus.xyz 25

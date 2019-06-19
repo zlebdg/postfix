@@ -1,0 +1,7 @@
+# 收件人为qq.com的应该可以发
+(sleep 1; echo helo a; \
+ sleep 1; echo "mail from:<postfix@xjplus.xyz>"; \
+ sleep 1; echo "rcpt to:<445172495@qq.com>"; \
+ sleep 1; echo data; \
+ sleep 1; echo test; \
+ sleep 1; echo .) |telnet xjplus.xyz 25
