@@ -4,9 +4,10 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
     && apk --update add postfix busybox-extras bash vim \
     && rm -rf /var/cache/apk/*
 
-RUN echo -e "\#mail.err /var/log/mail.log \n\
-\#mail.info /var/log/mail.log \n\
-\#mail.debug /var/log/mail.log \n\
+RUN echo -e "\n\
+#mail.err /var/log/mail.log \n\
+#mail.info /var/log/mail.log \n\
+#mail.debug /var/log/mail.log \n\
 mail.* /var/log/mail.log\n\
 " > /etc/syslog.conf
 
