@@ -29,13 +29,26 @@ inet_interfaces=all \n\
 # 什么客户端可以发邮件 \n\
 mynetworks=172.18.0.0/16,127.0.0.0/8 \n\
 # 可用的本地收件邮箱 \n\
-local_recipient_maps=hash:/etc/postfix/local_recipient_maps\n\
+local_recipient_maps=hash:/etc/postfix/local_recipient_maps \n\
+# 一个拒收规则 \n\
+#smtpd_reject_unlisted_sender=yes \n\
+# 虚拟邮箱名 \n\
+virtual_alias_domains=v.xjplus.xyz,vip.xjplus.xyz \n\
+# 虚拟邮箱名转发到本地unix用户目录 \n\
+virtual_alias_maps=hash:/etc/postfix/virtual_alias_maps \n\
+# ############ \n\
+virtual_mailbox_base=/var/vmail \n\
 " >> /etc/postfix/main.cf
 
 RUN echo -e "\n\
 test001     y \n\
 test002     y \n\
 " > /etc/postfix/local_recipient_maps && postmap /etc/postfix/local_recipient_maps
+
+RUN echo -e "\n\
+test.abc@v.xjplus.xyz  test \n\
+root.abc123@vip.xjplus.xyz  postmaster \n\
+" > /etc/postfix/virtual_alias_maps && postmap /etc/postfix/virtual_alias_maps
 
 EXPOSE 25
 
