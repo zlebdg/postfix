@@ -1,0 +1,8 @@
+(sleep 1; echo helo a; \
+ sleep 1; echo "mail from:<postfix@xjplus.xyz>"; \
+ sleep 1; echo "rcpt to:<virtual-01@v.xjplus.xyz>"; \
+ sleep 1; echo "rcpt to:<virtual-02@v.xjplus.xyz>"; \
+ sleep 1; echo "rcpt to:<virtual-03@vip.xjplus.xyz>"; \
+ sleep 1; echo data; \
+ sleep 1; echo test; \
+ sleep 1; echo .) |telnet xjplus.xyz 25
