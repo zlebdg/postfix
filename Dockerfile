@@ -64,8 +64,9 @@ local-02  y \n\
     && adduser -D local-02
 
 RUN echo -e "\n\
-test.abc@v.xjplus.xyz  test \n\
-root.abc123@vip.xjplus.xyz  postmaster \n\
+virtual-01@v.xjplus.xyz  local-01 \n\
+virtual-02@v.xjplus.xyz  local-02 \n\
+virtual-03@vip.xjplus.xyz  postmaster \n\
 " > /etc/postfix/virtual_alias_maps && postmap /etc/postfix/virtual_alias_maps
 
 RUN echo -e "\n\
