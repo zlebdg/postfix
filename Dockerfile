@@ -57,9 +57,11 @@ xuqplus@163.com y \n\
 " > /etc/postfix/relay_recipient_maps && postmap /etc/postfix/relay_recipient_maps
 
 RUN echo -e "\n\
-test001     y \n\
-test002     y \n\
-" > /etc/postfix/local_recipient_maps && postmap /etc/postfix/local_recipient_maps
+local-01  y \n\
+local-02  y \n\
+" > /etc/postfix/local_recipient_maps && postmap /etc/postfix/local_recipient_maps \
+    && adduser -D local-01 \
+    && adduser -D local-02
 
 RUN echo -e "\n\
 test.abc@v.xjplus.xyz  test \n\
