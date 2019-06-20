@@ -1,6 +1,7 @@
+# 550 5.1.1 <local-03@xjplus.xyz>: Recipient address rejected: User unknown in local recipient table
 (sleep 1; echo helo a; \
  sleep 1; echo "mail from:<postfix@xjplus.xyz>"; \
- sleep 1; echo "rcpt to:<xuqplus@xjplus.xyz>"; \
+ sleep 1; echo "rcpt to:<local-03@xjplus.xyz>"; \
  sleep 1; echo data; \
  sleep 1; echo test; \
  sleep 1; echo .) |telnet xjplus.xyz 25
