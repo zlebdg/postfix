@@ -40,7 +40,7 @@ virtual_alias_domains=v.xjplus.xyz,vip.xjplus.xyz \n\
 # 虚拟别名转发到本地unix用户目录 \n\
 virtual_alias_maps=hash:/etc/postfix/virtual_alias_maps \n\
 # 虚拟邮箱目录, 注意修改目录权限, 否则可能无法保存邮件 \n\
-virtual_mailbox_base=/var/vmail \n\
+virtual_mailbox_base=/var/vmailbox \n\
 # 虚拟邮箱域名 \n\
 virtual_mailbox_domains=box.xjplus.xyz \n\
 # 虚拟邮箱-邮件存储路径 \n\
@@ -70,9 +70,13 @@ virtual-03@vip.xjplus.xyz  postmaster \n\
 " > /etc/postfix/virtual_alias_maps && postmap /etc/postfix/virtual_alias_maps
 
 RUN echo -e "\n\
-box_001@box.xjplus.xyz  box.xjplus.xyz/box_001/ \n\
-box_002@box.xjplus.xyz  box/box_002/ \n\
-" > /etc/postfix/virtual_mailbox_maps && postmap /etc/postfix/virtual_mailbox_maps
+# 目录要以/结尾 \n\
+box-01@box.xjplus.xyz  box.xjplus.xyz/box-01/ \n\
+box-02@box.xjplus.xyz  box.xjplus.xyz/box-02/ \n\
+" > /etc/postfix/virtual_mailbox_maps && postmap /etc/postfix/virtual_mailbox_maps \
+    && mkdir /var/vmailbox/ \
+    && chown postfix:postfix /var/vmailbox \
+    && chmod 774 /var/vmailbox/ -R
 
 EXPOSE 25
 
