@@ -49,6 +49,9 @@ virtual_mailbox_maps=hash:/etc/postfix/virtual_mailbox_maps \n\
 virtual_minimum_uid=100 \n\
 virtual_uid_maps=static:101 \n\
 virtual_gid_maps=static:101 \n\
+smtpd_client_restrictions=permit_mynetworks, reject \n\
+smtpd_helo_required=yes \n\
+smtpd_helo_restrictions=permit_mynetworks, reject_invalid_helo_hostname, reject_unknown_helo_hostname \n\
 " >> /etc/postfix/main.cf
 
 RUN echo -e "\n\
