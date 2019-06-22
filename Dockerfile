@@ -51,16 +51,18 @@ virtual_mailbox_maps=hash:/etc/postfix/virtual_mailbox_maps \n\
 virtual_minimum_uid=100 \n\
 virtual_uid_maps=static:101 \n\
 virtual_gid_maps=static:101 \n\
-# 立即拒绝
+# 立即拒绝 \n\
 smtpd_delay_reject=no \n\
-# client 策略
+# client 策略 \n\
 smtpd_client_restrictions=permit_mynetworks, defer_if_reject \n\
-# helo策略
+# helo策略 \n\
 smtpd_helo_required=yes \n\
 smtpd_helo_restrictions=permit_mynetworks, reject_invalid_helo_hostname, reject_unknown_helo_hostname \n\
+# 收件人策略 \n\
 smtpd_recipient_restrictions= \n\
  check_recipient_access hash:/etc/postfix/check_recipient_access \n\
  defer_if_reject \n\
+# 发件人策略 \n\
 smtpd_sender_restrictions= \n\
  check_sender_access hash:/etc/postfix/check_sender_access \n\
  defer_if_reject \n\
