@@ -60,10 +60,12 @@ smtpd_helo_required=yes \n\
 smtpd_helo_restrictions=permit_mynetworks, reject_invalid_helo_hostname, reject_unknown_helo_hostname \n\
 # 收件人策略 \n\
 smtpd_recipient_restrictions= \n\
+ permit_mynetworks \n\
  check_recipient_access hash:/etc/postfix/check_recipient_access \n\
- defer_if_reject \n\
+ defer \n\
 # 发件人策略 \n\
 smtpd_sender_restrictions= \n\
+ permit_mynetworks \n\
  check_sender_access hash:/etc/postfix/check_sender_access \n\
  defer_if_reject \n\
 " >> /etc/postfix/main.cf
@@ -96,6 +98,10 @@ box-02@box.xjplus.xyz  box.xjplus.xyz/box-02/ \n\
     && chmod 774 /var/vmailbox/ -R
 
 RUN echo -e "\n\
+local-01@xjplus.xyz         ok \n\
+virtual-01@v.xjplus.xyz     ok \n\
+box-01@box.xjplus.xyz       ok \n\
+test@xjplus.xyz             ok \n\
 " > /etc/postfix/check_recipient_access && postmap /etc/postfix/check_recipient_access
 
 RUN echo -e "\n\
