@@ -11,6 +11,8 @@ RUN echo -e "\n\
 mail.* /var/log/mail.log\n\
 " > /etc/syslog.conf
 
+# main.conf, defer/defer_if_reject/defer_if_permit
+
 RUN echo -e "\n\
 # 服务器的名字 \n\
 myhostname=mail.xjplus.xyz \n\
@@ -49,9 +51,19 @@ virtual_mailbox_maps=hash:/etc/postfix/virtual_mailbox_maps \n\
 virtual_minimum_uid=100 \n\
 virtual_uid_maps=static:101 \n\
 virtual_gid_maps=static:101 \n\
-smtpd_client_restrictions=permit_mynetworks, reject \n\
+# 立即拒绝
+smtpd_delay_reject=no \n\
+# client 策略
+smtpd_client_restrictions=permit_mynetworks, defer_if_reject \n\
+# helo策略
 smtpd_helo_required=yes \n\
 smtpd_helo_restrictions=permit_mynetworks, reject_invalid_helo_hostname, reject_unknown_helo_hostname \n\
+smtpd_recipient_restrictions= \n\
+ check_recipient_access hash:/etc/postfix/check_recipient_access \n\
+ defer_if_reject \n\
+smtpd_sender_restrictions= \n\
+ check_sender_access hash:/etc/postfix/check_sender_access \n\
+ defer_if_reject \n\
 " >> /etc/postfix/main.cf
 
 RUN echo -e "\n\
@@ -80,6 +92,12 @@ box-02@box.xjplus.xyz  box.xjplus.xyz/box-02/ \n\
     && mkdir /var/vmailbox/ \
     && chown postfix:postfix /var/vmailbox \
     && chmod 774 /var/vmailbox/ -R
+
+RUN echo -e "\n\
+" > /etc/postfix/check_recipient_access && postmap /etc/postfix/check_recipient_access
+
+RUN echo -e "\n\
+" > /etc/postfix/check_sender_access && postmap /etc/postfix/check_sender_access
 
 EXPOSE 25
 
