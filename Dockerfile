@@ -1,7 +1,7 @@
 FROM alpine
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk --update add postfix busybox-extras bash vim \
+    && apk --update add postfix postfix-mysql busybox-extras bash vim \
     && rm -rf /var/cache/apk/*
 
 RUN echo -e "\n\
