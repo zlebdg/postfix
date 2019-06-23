@@ -1,7 +1,7 @@
 FROM alpine
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk --update add postfix postfix-mysql busybox-extras bash vim \
+    && apk --update add postfix postfix-mysql cyrus-sasl cyrus-sasl-login busybox-extras bash vim \
     && rm -rf /var/cache/apk/*
 
 RUN echo -e "\n\
@@ -51,6 +51,10 @@ virtual_mailbox_maps=hash:/etc/postfix/virtual_mailbox_maps \n\
 virtual_minimum_uid=100 \n\
 virtual_uid_maps=static:101 \n\
 virtual_gid_maps=static:101 \n\
+# 开启sasl \n\
+smtpd_sasl_auth_enable=yes \n\
+smtpd_sasl_path=smtpd \n\
+smtpd_sasl_security_options=noanonymous \n\
 # 立即拒绝 \n\
 smtpd_delay_reject=no \n\
 # client 策略 \n\
@@ -64,6 +68,8 @@ smtpd_recipient_restrictions= \n\
  reject_non_fqdn_recipient \n\
  # mynetworks内部通过 \n\
  permit_mynetworks \n\
+ # sasl认证的通过 \n\
+ permit_sasl_authenticated \n\
  # 或查表 \n\
  check_recipient_access hash:/etc/postfix/check_recipient_access, mysql:/etc/postfix/check_recipient_access_mysql \n\
  # 其他的拒绝 \n\
@@ -74,6 +80,8 @@ smtpd_sender_restrictions= \n\
  reject_non_fqdn_sender \n\
  # mynetworks内部通过 \n\
  permit_mynetworks \n\
+ # sasl认证的通过 \n\
+ permit_sasl_authenticated \n\
  # 或查表 \n\
  check_sender_access hash:/etc/postfix/check_sender_access \n\
  defer_if_reject \n\
@@ -124,6 +132,12 @@ query=select 'reject' \n\
 RUN echo -e "\n\
 " > /etc/postfix/check_sender_access && postmap /etc/postfix/check_sender_access
 
+# smtpd auth
+RUN echo -e "\n\
+pwcheck_method: saslauthd \n\
+" > /etc/sasl2/smtpd.conf && (echo 123456; echo 123456;) | passwd local-01
+
+
 EXPOSE 25
 
-CMD newaliases && syslogd && postfix start && sh
+CMD newaliases && syslogd && saslauthd -a shadow && postfix start && sh
