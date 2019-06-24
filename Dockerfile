@@ -80,7 +80,7 @@ smtpd_sender_restrictions= \n\
  # 其他 \n\
  defer_if_reject \n\
 # sasl登录用户对应发件名 \n\
-smtpd_sender_login_maps=/etc/postfix/smtpd_sender_login_maps \n\
+smtpd_sender_login_maps=hash:/etc/postfix/smtpd_sender_login_maps \n\
 # 收件人策略 \n\
 smtpd_recipient_restrictions= \n\
  # 拒绝非全限定域名的收件人 \n\
@@ -147,7 +147,9 @@ RUN echo -e "\n\
 @box.xjplus.xyz         nobody@box.xjplus.xyz \n\
 local-01@xjplus.xyz                 local-01@xjplus.xyz \n\
 local-02@xjplus.xyz                 local-007@xjplus.xyz \n\
+postfix@xjplus.xyz                  postfix@xjplus.xyz \n\
 " > /etc/postfix/smtpd_sender_login_maps && postmap /etc/postfix/smtpd_sender_login_maps \
+    && (echo 123456; echo 123456;) | passwd postfix \
     && (echo 123456; echo 123456;) | passwd local-01 \
     && (echo 123456; echo 123456;) | passwd local-02
 
