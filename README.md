@@ -14,3 +14,6 @@
 postfix需要syslogd来写日志, 日志重定向到了/var/log/mail.log  
 
 主要参考了官方文档: http://www.postfix.org/documentation.html
+
+___
+`release 0.2` sasl已搞定..  
