@@ -61,30 +61,38 @@ smtpd_delay_reject=no \n\
 smtpd_client_restrictions=permit_mynetworks, defer_if_reject \n\
 # helo策略 \n\
 smtpd_helo_required=yes \n\
-smtpd_helo_restrictions=permit_mynetworks, reject_invalid_helo_hostname, reject_unknown_helo_hostname \n\
-# 收件人策略 \n\
-smtpd_recipient_restrictions= \n\
- # 拒绝非全限定域名的收件人 \n\
- reject_non_fqdn_recipient \n\
- # mynetworks内部通过 \n\
+smtpd_helo_restrictions= \n\
  permit_mynetworks \n\
- # sasl认证的通过 \n\
- permit_sasl_authenticated \n\
- # 或查表 \n\
- check_recipient_access hash:/etc/postfix/check_recipient_access, mysql:/etc/postfix/check_recipient_access_mysql \n\
- # 其他的拒绝 \n\
- defer \n\
+ reject_invalid_helo_hostname \n\
+ reject_unknown_helo_hostname \n\
 # 发件人策略 \n\
 smtpd_sender_restrictions= \n\
  # 拒绝非全限定域名的发件人 \n\
  reject_non_fqdn_sender \n\
  # mynetworks内部通过 \n\
- permit_mynetworks \n\
+ # permit_mynetworks \n\
+ # 查表 permit/reject/dunno \n\
+ check_sender_access hash:/etc/postfix/check_sender_access \n\
+ # sasl认证 \n\
+ reject_sender_login_mismatch \n\
+ reject_known_sender_login_mismatch \n\
+ reject_authenticated_sender_login_mismatch \n\
+ # 其他 \n\
+ defer_if_reject \n\
+# sasl登录用户对应发件名 \n\
+smtpd_sender_login_maps=/etc/postfix/smtpd_sender_login_maps \n\
+# 收件人策略 \n\
+smtpd_recipient_restrictions= \n\
+ # 拒绝非全限定域名的收件人 \n\
+ reject_non_fqdn_recipient \n\
+ # mynetworks内部通过 \n\
+ # permit_mynetworks \n\
  # sasl认证的通过 \n\
  permit_sasl_authenticated \n\
- # 或查表 \n\
- check_sender_access hash:/etc/postfix/check_sender_access \n\
- defer_if_reject \n\
+ # 查表 permit/reject/dunno \n\
+ check_recipient_access hash:/etc/postfix/check_recipient_access, mysql:/etc/postfix/check_recipient_access_mysql \n\
+ # 其他拒绝 \n\
+ defer \n\
 " >> /etc/postfix/main.cf
 
 RUN echo -e "\n\
@@ -132,11 +140,21 @@ query=select 'reject' \n\
 RUN echo -e "\n\
 " > /etc/postfix/check_sender_access && postmap /etc/postfix/check_sender_access
 
-# smtpd auth
+# shadow/saslauthd/系统用户密码/ auth login 后指定发件名
+RUN echo -e "\n\
+@xjplus.xyz             nobody@xjplus.xyz \n\
+@v.xjplus.xyz           nobody@v.xjplus.xyz \n\
+@box.xjplus.xyz         nobody@box.xjplus.xyz \n\
+local-01@xjplus.xyz                 local-01@xjplus.xyz \n\
+local-02@xjplus.xyz                 local-007@xjplus.xyz \n\
+" > /etc/postfix/smtpd_sender_login_maps && postmap /etc/postfix/smtpd_sender_login_maps \
+    && (echo 123456; echo 123456;) | passwd local-01 \
+    && (echo 123456; echo 123456;) | passwd local-02
+
+# smtpd pwcheck_method
 RUN echo -e "\n\
 pwcheck_method: saslauthd \n\
-" > /etc/sasl2/smtpd.conf && (echo 123456; echo 123456;) | passwd local-01
-
+" > /etc/sasl2/smtpd.conf
 
 EXPOSE 25
 
