@@ -13,11 +13,13 @@ mail.* /var/log/mail.log\n\
 
 # main.conf, defer/defer_if_reject/defer_if_permit
 
+ARG POSTFIX_DOMAIN=java8.xyz
+
 RUN echo -e "\n\
 # 服务器的名字 \n\
-myhostname=mail.xjplus.xyz \n\
+myhostname=mail.${POSTFIX_DOMAIN} \n\
 # 域名 \n\
-mydomain=xjplus.xyz \n\
+mydomain=${POSTFIX_DOMAIN} \n\
 # 发邮件的邮箱后缀名, 如: user@\$mydomain \n\
 myorigin=\$mydomain \n\
 # 收邮件的邮箱后缀名, 如: user@\$mydestination \n\
@@ -32,19 +34,19 @@ home_mailbox=maildir/ \n\
 # 收件网关 \n\
 inet_interfaces=all \n\
 # 什么客户端可以发邮件 \n\
-mynetworks=172.18.0.0/16,127.0.0.0/8 \n\
+mynetworks=172.19.0.0/16,172.18.0.0/16,127.0.0.0/8 \n\
 # 可用的本地收件邮箱 \n\
 local_recipient_maps=hash:/etc/postfix/local_recipient_maps \n\
 # 一个拒收规则 \n\
 #smtpd_reject_unlisted_sender=yes \n\
 # 虚拟别名 \n\
-virtual_alias_domains=v.xjplus.xyz,vip.xjplus.xyz \n\
+virtual_alias_domains=v.${POSTFIX_DOMAIN},vip.${POSTFIX_DOMAIN} \n\
 # 虚拟别名转发到本地unix用户目录 \n\
 virtual_alias_maps=hash:/etc/postfix/virtual_alias_maps \n\
 # 虚拟邮箱目录, 注意修改目录权限, 否则可能无法保存邮件 \n\
 virtual_mailbox_base=/var/vmailbox \n\
 # 虚拟邮箱域名 \n\
-virtual_mailbox_domains=box.xjplus.xyz \n\
+virtual_mailbox_domains=box.${POSTFIX_DOMAIN} \n\
 # 虚拟邮箱-邮件存储路径 \n\
 virtual_mailbox_maps=hash:/etc/postfix/virtual_mailbox_maps \n\
 # 最小uid, 默认100 \n\
@@ -90,7 +92,7 @@ smtpd_recipient_restrictions= \n\
  # sasl认证的通过 \n\
  permit_sasl_authenticated \n\
  # 查表 permit/reject/dunno \n\
- check_recipient_access hash:/etc/postfix/check_recipient_access, mysql:/etc/postfix/check_recipient_access_mysql \n\
+ check_recipient_access hash:/etc/postfix/check_recipient_access \n\
  # 其他拒绝 \n\
  defer \n\
 " >> /etc/postfix/main.cf
@@ -108,25 +110,25 @@ local-02  y \n\
     && adduser -D local-02
 
 RUN echo -e "\n\
-virtual-01@v.xjplus.xyz  local-01 \n\
-virtual-02@v.xjplus.xyz  local-02 \n\
-virtual-03@vip.xjplus.xyz  postmaster \n\
+virtual-01@v.${POSTFIX_DOMAIN}  local-01 \n\
+virtual-02@v.${POSTFIX_DOMAIN}  local-02 \n\
+virtual-03@vip.${POSTFIX_DOMAIN}  postmaster \n\
 " > /etc/postfix/virtual_alias_maps && postmap /etc/postfix/virtual_alias_maps
 
 RUN echo -e "\n\
 # 目录要以/结尾 \n\
-box-01@box.xjplus.xyz  box.xjplus.xyz/box-01/ \n\
-box-02@box.xjplus.xyz  box.xjplus.xyz/box-02/ \n\
+box-01@box.${POSTFIX_DOMAIN}  box.${POSTFIX_DOMAIN}/box-01/ \n\
+box-02@box.${POSTFIX_DOMAIN}  box.${POSTFIX_DOMAIN}/box-02/ \n\
 " > /etc/postfix/virtual_mailbox_maps && postmap /etc/postfix/virtual_mailbox_maps \
     && mkdir /var/vmailbox/ \
     && chown postfix:postfix /var/vmailbox \
     && chmod 774 /var/vmailbox/ -R
 
 RUN echo -e "\n\
-local-01@xjplus.xyz         ok \n\
-virtual-01@v.xjplus.xyz     ok \n\
-box-01@box.xjplus.xyz       ok \n\
-test@xjplus.xyz             ok \n\
+local-01@${POSTFIX_DOMAIN}         ok \n\
+virtual-01@v.${POSTFIX_DOMAIN}     ok \n\
+box-01@box.${POSTFIX_DOMAIN}       ok \n\
+test@${POSTFIX_DOMAIN}             ok \n\
 " > /etc/postfix/check_recipient_access && postmap /etc/postfix/check_recipient_access
 
 RUN echo -e "\n\
@@ -142,12 +144,12 @@ RUN echo -e "\n\
 
 # shadow/saslauthd/系统用户密码/ auth login 后指定发件名
 RUN echo -e "\n\
-@xjplus.xyz             nobody@xjplus.xyz \n\
-@v.xjplus.xyz           nobody@v.xjplus.xyz \n\
-@box.xjplus.xyz         nobody@box.xjplus.xyz \n\
-local-01@xjplus.xyz                 local-01@xjplus.xyz \n\
-local-02@xjplus.xyz                 local-007@xjplus.xyz \n\
-postfix@xjplus.xyz                  postfix@xjplus.xyz \n\
+@${POSTFIX_DOMAIN}              nobody@${POSTFIX_DOMAIN} \n\
+@v.${POSTFIX_DOMAIN}            nobody@v.${POSTFIX_DOMAIN} \n\
+@box.${POSTFIX_DOMAIN}          nobody@box.${POSTFIX_DOMAIN} \n\
+local-01@${POSTFIX_DOMAIN}      local-01@${POSTFIX_DOMAIN} \n\
+local-02@${POSTFIX_DOMAIN}      local-007@${POSTFIX_DOMAIN} \n\
+postfix@${POSTFIX_DOMAIN}       postfix@${POSTFIX_DOMAIN} \n\
 " > /etc/postfix/smtpd_sender_login_maps && postmap /etc/postfix/smtpd_sender_login_maps \
     && (echo 123456; echo 123456;) | passwd postfix \
     && (echo 123456; echo 123456;) | passwd local-01 \
